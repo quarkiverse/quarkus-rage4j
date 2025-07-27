@@ -29,7 +29,7 @@
         <dependency>
             <groupId>dev.rage4j</groupId>
             <artifactId>rage4j</artifactId>
-            <version>1.0.4</version>
+            <version>1.0.7</version>
         </dependency>
     </dependencies>
 
