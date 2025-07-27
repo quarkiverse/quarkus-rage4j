@@ -1,0 +1,5 @@
+name: quarkus-rage4j
+title: Rage4j
+version: dev
+nav:
+  - modules/ROOT/nav.adoc
