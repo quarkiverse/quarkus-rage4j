@@ -1,21 +1,26 @@
 package io.quarkiverse.rage4j.it;
 
-import static io.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.is;
+import jakarta.inject.Inject;
 
 import org.junit.jupiter.api.Test;
 
+import io.quarkiverse.rage4j.runtime.annotations.TestAIService;
+import io.quarkiverse.rage4j.runtime.wrapper.RageAssert;
 import io.quarkus.test.junit.QuarkusTest;
 
 @QuarkusTest
-public class Rage4jResourceTest {
+@TestAIService(Rage4jResource.class)
+class Rage4jResourceTest {
+
+    @Inject
+    RageAssert rageAssert;
 
     @Test
-    public void testHelloEndpoint() {
-        given()
-                .when().get("/rage4j")
-                .then()
-                .statusCode(200)
-                .body(is("Hello rage4j"));
+    void shouldFail() {
+        rageAssert
+                .question("What is the answer to life, the universe and everything?")
+                .groundTruth("42")
+                .threshold(0.5)
+                .assertAnswerCorrectness();
     }
 }
