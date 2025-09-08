@@ -5,10 +5,10 @@ import io.quarkus.runtime.annotations.ConfigRoot;
 import io.smallrye.config.ConfigMapping;
 
 @ConfigMapping(prefix = "quarkus.rage4j")
-// ToDo: Test if it works with ConfigPhase.Build_TIME only
-// ToDo: Add documentation
-@ConfigRoot(phase = ConfigPhase.BUILD_AND_RUN_TIME_FIXED)
+@ConfigRoot(phase = ConfigPhase.BUILD_TIME)
 public interface Rage4jConfiguration {
-
+    /**
+     * This is a Javadoc
+     */
     String apiKey();
 }

@@ -1,7 +1,5 @@
 package io.quarkiverse.rage4j.deployment;
 
-import static io.quarkiverse.rage4j.deployment.ObjectBuildUtils.buildObject;
-
 import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.function.BooleanSupplier;
@@ -14,8 +12,9 @@ import org.jboss.jandex.IndexView;
 
 import io.quarkiverse.rage4j.deployment.builditem.AIServiceBuildItem;
 import io.quarkiverse.rage4j.deployment.config.Rage4jConfiguration;
-import io.quarkiverse.rage4j.deployment.recorder.Rage4jRecorder;
 import io.quarkiverse.rage4j.runtime.AIServiceHolder;
+import io.quarkiverse.rage4j.runtime.wrapper.RageAssert;
+import io.quarkus.arc.deployment.AdditionalBeanBuildItem;
 import io.quarkus.arc.deployment.SyntheticBeanBuildItem;
 import io.quarkus.deployment.IsTest;
 import io.quarkus.deployment.annotations.BuildProducer;
@@ -25,7 +24,7 @@ import io.quarkus.deployment.builditem.CombinedIndexBuildItem;
 import io.quarkus.deployment.builditem.FeatureBuildItem;
 import io.quarkus.deployment.builditem.TestClassBeanBuildItem;
 
-@BuildSteps(onlyIf = { IsTest.class, Rage4jProcessor.IsRageTest.class })
+@BuildSteps(onlyIf = IsTest.class)
 class Rage4jProcessor {
 
     private static final String FEATURE = "rage4j";
@@ -50,19 +49,22 @@ class Rage4jProcessor {
                 .filter(a -> isCorrectTestClass(a, testClassBeanBuildItem))
                 .map(this::getAiCallMethod)
                 .toList()
-                .getFirst();
+                .get(0);
     }
 
     @BuildStep
-    void BuildRageAssert(Rage4jConfiguration rage4jConfiguration, BuildProducer<SyntheticBeanBuildItem> beans,
-            Rage4jRecorder rage4jRecorder, AIServiceBuildItem aiServiceBuildItem) {
+    void buildRageAssert(Rage4jConfiguration rage4jConfiguration, BuildProducer<SyntheticBeanBuildItem> beans,
+            AIServiceBuildItem aiServiceBuildItem) {
         beans.produce(SyntheticBeanBuildItem.configure(AIServiceHolder.class)
                 .scope(ApplicationScoped.class)
-                .runtimeValue(rage4jRecorder.createAIServiceHolder(
-                        buildObject(aiServiceBuildItem.getAiServiceClass()),
-                        aiServiceBuildItem.getMethodName(),
+                .supplier(() -> new AIServiceHolder(aiServiceBuildItem.getAiServiceClass(), aiServiceBuildItem.getMethodName(),
                         rage4jConfiguration.apiKey()))
                 .done());
+    }
+
+    @BuildStep
+    AdditionalBeanBuildItem buildRageAssertBean() {
+        return AdditionalBeanBuildItem.builder().addBeanClass(RageAssert.class).build();
     }
 
     private boolean isCorrectTestClass(AnnotationInstance annotationInstance, TestClassBeanBuildItem testClassBeanBuildItem) {
@@ -86,16 +88,9 @@ class Rage4jProcessor {
         return new AIServiceBuildItem(aiCallMethod, aiServiceClass);
     }
 
-    // ToDo: Vielleicht in externe Klasse auslagern?
     static class IsRageTest implements BooleanSupplier {
-
-        private final CombinedIndexBuildItem combinedIndexBuildItem;
-        private final TestClassBeanBuildItem testClassBeanBuildItem;
-
-        public IsRageTest(CombinedIndexBuildItem combinedIndexBuildItem, TestClassBeanBuildItem testClassBeanBuildItem) {
-            this.combinedIndexBuildItem = combinedIndexBuildItem;
-            this.testClassBeanBuildItem = testClassBeanBuildItem;
-        }
+        CombinedIndexBuildItem combinedIndexBuildItem;
+        TestClassBeanBuildItem testClassBeanBuildItem;
 
         @Override
         public boolean getAsBoolean() {
