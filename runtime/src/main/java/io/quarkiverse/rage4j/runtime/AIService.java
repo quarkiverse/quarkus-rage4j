@@ -5,13 +5,8 @@ import java.lang.reflect.InvocationTargetException;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-
 @ApplicationScoped
 public class AIService {
-
-    @ConfigProperty(name = "quarkus.rage4j.api-key")
-    String apiKey;
 
     @Inject
     AIServiceHolder aiServiceHolder;

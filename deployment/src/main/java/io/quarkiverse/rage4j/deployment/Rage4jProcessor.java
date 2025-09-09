@@ -13,6 +13,7 @@ import org.jboss.jandex.IndexView;
 import io.quarkiverse.rage4j.deployment.builditem.AIServiceBuildItem;
 import io.quarkiverse.rage4j.deployment.config.Rage4jConfiguration;
 import io.quarkiverse.rage4j.runtime.AIServiceHolder;
+import io.quarkiverse.rage4j.runtime.TestClassNameRecorder;
 import io.quarkiverse.rage4j.runtime.wrapper.RageAssert;
 import io.quarkus.arc.deployment.AdditionalBeanBuildItem;
 import io.quarkus.arc.deployment.SyntheticBeanBuildItem;
@@ -20,6 +21,8 @@ import io.quarkus.deployment.IsTest;
 import io.quarkus.deployment.annotations.BuildProducer;
 import io.quarkus.deployment.annotations.BuildStep;
 import io.quarkus.deployment.annotations.BuildSteps;
+import io.quarkus.deployment.annotations.ExecutionTime;
+import io.quarkus.deployment.annotations.Record;
 import io.quarkus.deployment.builditem.CombinedIndexBuildItem;
 import io.quarkus.deployment.builditem.FeatureBuildItem;
 import io.quarkus.deployment.builditem.TestClassBeanBuildItem;
@@ -38,7 +41,8 @@ class Rage4jProcessor {
     }
 
     @BuildStep
-    AIServiceBuildItem buildAIServiceBuildItem(TestClassBeanBuildItem testClassBeanBuildItem,
+    @Record(ExecutionTime.STATIC_INIT)
+    AIServiceBuildItem buildAIServiceBuildItem(TestClassNameRecorder testClassNameRecorder,
             CombinedIndexBuildItem combinedIndexBuildItem) {
         IndexView index = combinedIndexBuildItem.getIndex();
 
@@ -46,7 +50,7 @@ class Rage4jProcessor {
         Collection<AnnotationInstance> annotationInstances = index.getAnnotations(testAiServiceAnnotation);
 
         return annotationInstances.stream()
-                .filter(a -> isCorrectTestClass(a, testClassBeanBuildItem))
+                .filter(a -> isCorrectTestClass(a, testClassNameRecorder.getClassName()))
                 .map(this::getAiCallMethod)
                 .toList()
                 .get(0);
@@ -67,10 +71,14 @@ class Rage4jProcessor {
         return AdditionalBeanBuildItem.builder().addBeanClass(RageAssert.class).build();
     }
 
-    private boolean isCorrectTestClass(AnnotationInstance annotationInstance, TestClassBeanBuildItem testClassBeanBuildItem) {
+    @BuildStep
+    AdditionalBeanBuildItem buildTestClassRecorderBean() {
+        return AdditionalBeanBuildItem.builder().addBeanClass(TestClassNameRecorder.class).build();
+    }
+
+    private boolean isCorrectTestClass(AnnotationInstance annotationInstance, String actuallTestClassName) {
         String className = annotationInstance.target().asClass().toString();
-        String executedTestClassName = testClassBeanBuildItem.getTestClassName();
-        return executedTestClassName.equals(className);
+        return actuallTestClassName.equals(className);
     }
 
     private AIServiceBuildItem getAiCallMethod(AnnotationInstance annotationInstance) {
