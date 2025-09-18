@@ -15,7 +15,7 @@ endif::add-copy-button-to-config-props[]
 
 [.description]
 --
-This is a Javadoc
+This apikey is used to call the LLM Api, it is always required.
 
 
 ifdef::add-copy-button-to-env-var[]

@@ -5,8 +5,12 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Retention(RetentionPolicy.SOURCE)
-@Target(ElementType.TYPE)
+import org.junit.jupiter.api.extension.ExtendWith;
+
+import io.quarkiverse.rage4j.runtime.junitextension.Rage4jTestExtension;
+
+@Target(ElementType.METHOD)
+@Retention(RetentionPolicy.RUNTIME)
+@ExtendWith(Rage4jTestExtension.class)
 public @interface TestAIService {
-    Class<?> value();
 }

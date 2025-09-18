@@ -5,7 +5,6 @@ import java.lang.reflect.Method;
 import io.quarkus.builder.item.SimpleBuildItem;
 
 public final class AIServiceBuildItem extends SimpleBuildItem {
-
     private final Method methodName;
     private final Class<?> aiServiceClass;
 
