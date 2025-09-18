@@ -1,15 +1,18 @@
 package io.quarkiverse.rage4j.runtime;
 
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import io.quarkiverse.rage4j.runtime.holder.AIMethodHolder;
+
 @ApplicationScoped
-public class AIService {
+public class AIMethodInvoker {
 
     @Inject
-    AIServiceHolder aiServiceHolder;
+    AIMethodHolder aiMethodHolder;
 
     public String getAiAnswer(String question) {
         return invokeMethod(question);
@@ -17,7 +20,11 @@ public class AIService {
 
     private String invokeMethod(String question) {
         try {
-            return aiServiceHolder.getMethod().invoke(aiServiceHolder.getAiServiceClass(), question).toString();
+            Method method = aiMethodHolder.getMethod();
+            method.setAccessible(true);
+            return method
+                    .invoke(aiMethodHolder.getAiServiceClass(), question)
+                    .toString();
         } catch (InvocationTargetException | IllegalAccessException e) {
             throw new RuntimeException(e);
         }

@@ -8,7 +8,7 @@ import io.smallrye.config.ConfigMapping;
 @ConfigRoot(phase = ConfigPhase.BUILD_TIME)
 public interface Rage4jConfiguration {
     /**
-     * This is a Javadoc
+     * This apikey is used to call the LLM Api, it is always required.
      */
     String apiKey();
 }
