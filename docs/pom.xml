@@ -15,11 +15,6 @@
 
     <dependencies>
         <!-- Make sure the doc is built after the other artifacts -->
-        <dependency>
-            <groupId>io.quarkiverse.rage4j</groupId>
-            <artifactId>quarkus-rage4j-deployment</artifactId>
-            <version>${project.version}</version>
-        </dependency>
     </dependencies>
 
     <build>
