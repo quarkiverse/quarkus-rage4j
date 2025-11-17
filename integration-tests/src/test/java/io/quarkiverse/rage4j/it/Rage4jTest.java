@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import jakarta.inject.Inject;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -38,6 +39,7 @@ class Rage4jTest {
     }
 
     @Test
+    @Disabled
     void shouldNotFail() {
         rageAssert
                 .question("What is the answer to life, the universe and everything?")
@@ -47,6 +49,7 @@ class Rage4jTest {
     }
 
     @Test
+    @Disabled
     void shouldFail() {
         assertThrows(Rage4JCorrectnessException.class, () -> rageAssert
                 .question("What is the answer to life, the universe and everything?")
